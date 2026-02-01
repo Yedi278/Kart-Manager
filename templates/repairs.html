@@ -14,7 +14,7 @@
         }
 
         .overlay {
-            background-color: rgba(0, 0, 0, 0.75);
+            background-color: rgba(0, 0, 50, 0.85); /* blu scuro trasparente */
             min-height: 100vh;
             padding: 40px;
             color: white;
@@ -22,6 +22,7 @@
 
         h1 {
             text-align: center;
+            color: #ffffff; /* bianco */
         }
 
         #addRepairForm {
@@ -43,22 +44,23 @@
             padding: 6px 12px;
             border: none;
             border-radius: 5px;
-            background-color: #ff9800;
+            background-color: #0056b3; /* blu */
             color: white;
             cursor: pointer;
             font-weight: bold;
+            transition: background-color 0.3s;
         }
 
         button:hover {
-            background-color: #e68900;
+            background-color: #003d80; /* blu più scuro */
         }
 
         .remove-btn {
-            background-color: #f44336;
+            background-color: #d32f2f; /* rosso */
         }
 
         .remove-btn:hover {
-            background-color: #d32f2f;
+            background-color: #a00000; /* rosso scuro */
         }
 
         table {
@@ -76,7 +78,8 @@
         }
 
         th {
-            background-color: rgba(255, 152, 0, 0.8);
+            background-color: #003d80; /* blu scuro */
+            color: white;
         }
 
         tr:nth-child(even) {
@@ -87,14 +90,21 @@
             display: block;
             text-align: center;
             margin-top: 20px;
-            color: #ff9800;
+            color: #d32f2f; /* rosso */
             font-weight: bold;
             text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: background-color 0.3s, color 0.3s;
         }
 
         a:hover {
-            text-decoration: underline;
+            background-color: rgba(255, 255, 255, 0.25);
+            color: #ffaaaa;
+            text-decoration: none;
         }
+
     </style>
 </head>
 <body>

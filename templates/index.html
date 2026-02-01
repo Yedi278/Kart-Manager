@@ -8,12 +8,11 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            /* background: url("C:\Users\yehan\Documents\Lavoro\Programma Meccanico\auth-background.jpg") no-repeat center center fixed; */
             background-size: cover;
         }
 
         .overlay {
-            background-color: rgba(0, 0, 0, 0.75);
+            background-color: rgba(0, 0, 50, 0.85); /* blu scuro trasparente */
             min-height: 100vh;
             padding: 40px;
             color: white;
@@ -21,6 +20,7 @@
 
         h1 {
             text-align: center;
+            color: #ffffff; /* bianco */
         }
 
         #kartForm {
@@ -29,7 +29,7 @@
             border-radius: 10px;
             margin-bottom: 20px;
             text-align: center;
-            display: none; /* Nascondiamo il form inizialmente */
+            display: none;
         }
 
         input, select {
@@ -43,14 +43,15 @@
             padding: 8px 15px;
             border: none;
             border-radius: 5px;
-            background-color: #ff9800;
+            background-color: #0056b3; /* blu */
             color: white;
             cursor: pointer;
             font-weight: bold;
+            transition: background-color 0.3s;
         }
 
         button:hover {
-            background-color: #e68900;
+            background-color: #003d80; /* blu più scuro */
         }
 
         .add-btn {
@@ -60,11 +61,11 @@
         }
 
         .remove-btn {
-            background-color: #f44336;
+            background-color: #d32f2f; /* rosso */
         }
 
         .remove-btn:hover {
-            background-color: #d32f2f;
+            background-color: #a00000; /* rosso scuro */
         }
 
         table {
@@ -82,7 +83,8 @@
         }
 
         th {
-            background-color: rgba(255, 152, 0, 0.8);
+            background-color: #003d80; /* blu scuro */
+            color: white;
         }
 
         tr:nth-child(even) {
@@ -93,17 +95,25 @@
             display: block;
             text-align: center;
             margin-top: 20px;
-            color: #ff9800;
+            color: #d32f2f; /* rosso */
             font-weight: bold;
             text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            background-color: #ffffff20; /* leggero sfondo bianco trasparente */
+            transition: background-color 0.3s, color 0.3s;
         }
 
         a:hover {
-            text-decoration: underline;
+            background-color: #ffffff40;
+            color: #ffaaaa;
+            text-decoration: none;
         }
+
         </style>
 </head>
 <body>
+
     <div class="overlay">
         <h1>🏎️ Lista Kart</h1>
 
