@@ -1,6 +1,6 @@
 ####################################
 # Mechanic - Kart Repair Management
-# Version 1.0.0
+# Version 1.0.1
 # Author: Yehan Edirisinghe
 # Mail: yehan278@gmail.com
 # Date: 2025-01
@@ -91,7 +91,7 @@ class Mechanic:
         
         conn.close()
 
-    def create_piece(self, nome_pezzo:str, codice:str, costo_unitario:float):
+    def add_piece(self, nome_pezzo:str, codice:str, costo_unitario:float):
         conn = self.get_connection()
         c = conn.cursor()
 
@@ -101,10 +101,10 @@ class Mechanic:
         )
 
         conn.commit()
-        print(f"Pezzo {nome_pezzo} creato con successo.")
+        print(f"Pezzo {nome_pezzo} aggiunto con successo.")
         conn.close()
     
-    def create_technician(self, nome, cognome, specializzazione):
+    def add_technician(self, nome, cognome, specializzazione):
         conn = self.get_connection()
         c = conn.cursor()
 
@@ -201,6 +201,75 @@ class Mechanic:
         for riparazione in riparazioni:
             print(f"Riparazione ID: {riparazione[0]}, Kart Num: {riparazione[1]}, Pezzo: {riparazione[2]}, Tecnico: {riparazione[3]}, Data: {riparazione[4]}, Descrizione: {riparazione[5]}")
         conn.close()
+
+    def filter_by_kart(self, kart_num:int):
+        conn = self.get_connection()
+        c = conn.cursor()
+        c.execute("""
+        SELECT r.id_riparazione, k.kart_num, p.nome_pezzo, t.nome || ' ' || t.cognome AS tecnico_nome, r.data_riparazione, r.descrizione
+        FROM riparazioni r
+        JOIN kart k ON r.kart_id = k.kart_id
+        JOIN pezzi p ON r.pezzo_id = p.pezzo_id
+        JOIN tecnici t ON r.tecnico_id = t.tecnico_id
+        WHERE k.kart_num = ?
+        """, (kart_num,))
+        riparazioni = c.fetchall()
+        for riparazione in riparazioni:
+            print(f"Riparazione ID: {riparazione[0]}, Kart Num: {riparazione[1]}, Pezzo: {riparazione[2]}, Tecnico: {riparazione[3]}, Data: {riparazione[4]}, Descrizione: {riparazione[5]}")
+        conn.close()
+
+    def filter_by_technician(self, tecnico_nome:str):
+        conn = self.get_connection()
+        c = conn.cursor()
+        c.execute("""
+        SELECT r.id_riparazione, k.kart_num, p.nome_pezzo, t.nome || ' ' || t.cognome AS tecnico_nome, r.data_riparazione, r.descrizione
+        FROM riparazioni r
+        JOIN kart k ON r.kart_id = k.kart_id
+        JOIN pezzi p ON r.pezzo_id = p.pezzo_id
+        JOIN tecnici t ON r.tecnico_id = t.tecnico_id
+        WHERE t.nome || ' ' || t.cognome = ?
+        """, (tecnico_nome,))
+        riparazioni = c.fetchall()
+        for riparazione in riparazioni:
+            print(f"Riparazione ID: {riparazione[0]}, Kart Num: {riparazione[1]}, Pezzo: {riparazione[2]}, Tecnico: {riparazione[3]}, Data: {riparazione[4]}, Descrizione: {riparazione[5]}")
+        conn.close()
+
+    def filter_by_date(self, data_riparazione:str):
+        conn = self.get_connection()
+        c = conn.cursor()
+        c.execute("""
+        SELECT r.id_riparazione, k.kart_num, p.nome_pezzo, t.nome || ' ' || t.cognome AS tecnico_nome, r.data_riparazione, r.descrizione
+        FROM riparazioni r
+        JOIN kart k ON r.kart_id = k.kart_id
+        JOIN pezzi p ON r.pezzo_id = p.pezzo_id
+        JOIN tecnici t ON r.tecnico_id = t.tecnico_id
+        WHERE r.data_riparazione = ?
+        """, (data_riparazione,))
+        riparazioni = c.fetchall()
+        for riparazione in riparazioni:
+            print(f"Riparazione ID: {riparazione[0]}, Kart Num: {riparazione[1]}, Pezzo: {riparazione[2]}, Tecnico: {riparazione[3]}, Data: {riparazione[4]}, Descrizione: {riparazione[5]}")
+        conn.close()
+    
+    def filter_by_piece(self, nome_pezzo:str):
+        conn = self.get_connection()
+        c = conn.cursor()
+        c.execute("""
+        SELECT r.id_riparazione, k.kart_num, p.nome_pezzo, t.nome || ' ' || t.cognome AS tecnico_nome, r.data_riparazione, r.descrizione
+        FROM riparazioni r
+        JOIN kart k ON r.kart_id = k.kart_id
+        JOIN pezzi p ON r.pezzo_id = p.pezzo_id
+        JOIN tecnici t ON r.tecnico_id = t.tecnico_id
+        WHERE p.nome_pezzo = ?
+        """, (nome_pezzo,))
+        riparazioni = c.fetchall()
+        for riparazione in riparazioni:
+            print(f"Riparazione ID: {riparazione[0]}, Kart Num: {riparazione[1]}, Pezzo: {riparazione[2]}, Tecnico: {riparazione[3]}, Data: {riparazione[4]}, Descrizione: {riparazione[5]}")
+        conn.close()
     
     def close_connection(self, conn):
         conn.close()
+
+if __name__ == "__main__":
+
+    mechanic = Mechanic()
+    mechanic.filter_by_kart(1)

@@ -1,6 +1,6 @@
 ####################################
 # Mechanic - Kart Repair Management
-# Version 1.0.0
+# Version 1.0.1
 # Author: Yehan Edirisinghe
 # Mail: yehan278@gmail.com
 # Date: 2025-01
@@ -116,6 +116,15 @@ def remove_piece(pezzo_id):
     conn.close()
     return redirect("/")
 
+@app.route("/remove_repair/<int:repair_id>")
+def remove_repair(repair_id:int):
+    conn = db.get_connection()
+    c = conn.cursor()
+    c.execute("DELETE FROM riparazioni WHERE id_riparazione = ?", (repair_id,))
+    conn.commit()
+    conn.close()
+    return redirect("/repairs")
+
 @app.route("/change_kart_status/<int:kart_id>/<new_status>")
 def change_kart_status(kart_id:int, new_status:str):
     conn = db.get_connection()
@@ -124,14 +133,6 @@ def change_kart_status(kart_id:int, new_status:str):
     conn.commit()
     conn.close()
     return redirect("/")
-
-@app.route("/remove_repair/<int:repair_id>")
-def remove_repair(repair_id:int):
-    conn = db.get_connection()
-    c = conn.cursor()
-    c.execute("DELETE FROM riparazioni WHERE id_riparazione = ?", (repair_id,))
-    conn.commit()
-    conn.close()
 
 @app.route("/change_repair_description/<int:repair_id>/<new_description>")
 def change_repair_description(repair_id:int, new_description:str):
