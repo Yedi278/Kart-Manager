@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kart Manager</title>
+    <link rel="icon" type="image/png" href="https://www.k1speed.com/wp-content/uploads/2025/10/k1speed-logo-short-red.png">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            /* background: url("C:\Users\yehan\Documents\Lavoro\Programma Meccanico\auth-background.jpg") no-repeat center center fixed; */
+            background-size: cover;
+        }
+
+        .overlay {
+            background-color: rgba(0, 0, 0, 0.75);
+            min-height: 100vh;
+            padding: 40px;
+            color: white;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        #kartForm {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none; /* Nascondiamo il form inizialmente */
+        }
+
+        input, select {
+            padding: 8px;
+            margin: 5px;
+            border-radius: 5px;
+            border: none;
+        }
+
+        button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #ff9800;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #e68900;
+        }
+
+        .add-btn {
+            display: block;
+            margin: 0 auto 20px auto;
+            font-size: 20px;
+        }
+
+        .remove-btn {
+            background-color: #f44336;
+        }
+
+        .remove-btn:hover {
+            background-color: #d32f2f;
+        }
+
+        table {
+            width: 80%;
+            margin: auto;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: rgba(255, 152, 0, 0.8);
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        a {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #ff9800;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+        </style>
+</head>
+<body>
+    <div class="overlay">
+        <h1>🏎️ Lista Kart</h1>
+
+        <!-- Pulsante per mostrare il form -->
+        <button class="add-btn" onclick="toggleForm()">➕ Aggiungi Kart</button>
+
+        <!-- Form nascosto -->
+        <form id="kartForm" action="/add_kart" method="post">
+            Numero Kart: <input type="number" name="kart_num" required>
+            Modello: <input type="text" name="modello" required>
+            Stato:
+            <select name="stato" required>
+                <option value="Disponibile">Disponibile</option>
+                <option value="In Uso">In Uso</option>
+                <option value="In Manutenzione">In Manutenzione</option>
+                <option value="Rotto">Rotto</option>
+            </select>
+            <button type="submit">Aggiungi</button>
+        </form>
+
+        <table>
+            <tr>
+                <th>ID</th><th>Numero</th><th>Modello</th><th>Stato</th><th>Azioni</th>
+            </tr>
+            {% for kart in karts %}
+            <tr>
+                <td>{{ kart[0] }}</td>
+                <td>{{ kart[1] }}</td>
+                <td>{{ kart[2] }}</td>
+                <td>
+                    <!-- Dropdown per cambiare lo stato -->
+                    <select onchange="changeStatus({{ kart[0] }}, this.value)">
+                        <option value="Disponibile" {% if kart[3]=='Disponibile' %}selected{% endif %}>Disponibile</option>
+                        <option value="In Uso" {% if kart[3]=='In Uso' %}selected{% endif %}>In Uso</option>
+                        <option value="In Manutenzione" {% if kart[3]=='In Manutenzione' %}selected{% endif %}>In Manutenzione</option>
+                        <option value="Rotto" {% if kart[3]=='Rotto' %}selected{% endif %}>Rotto</option>
+                    </select>
+                </td>
+                <td>
+                    <form action="/remove_kart/{{ kart[0] }}" method="get" style="display:inline;">
+                        <button type="submit" class="remove-btn">❌</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <a href="/repairs">🔧 Vai alle Riparazioni</a>
+    </div>
+
+    <script>
+        function toggleForm() {
+            const form = document.getElementById('kartForm');
+            form.style.display = (form.style.display === "none" || form.style.display === "") ? "block" : "none";
+        }
+
+        // Funzione per cambiare lo stato via GET
+        function changeStatus(kartId, newStatus) {
+            fetch(`/change_kart_status/${kartId}/${encodeURIComponent(newStatus)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        alert("Errore nel cambiare lo stato!");
+                    }
+                })
+                .catch(err => alert("Errore: " + err));
+        }
+    </script>
+</body>
+</html>
