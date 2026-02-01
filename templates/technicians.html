@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gestione Tecnici</title>
+    <link rel="icon" type="image/png" href="https://www.k1speed.com/wp-content/uploads/2025/10/k1speed-logo-short-red.png">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="overlay">
+
+    <h1>👨‍🔧 Gestione Tecnici</h1>
+
+    <div class="top-nav">
+        <a href="/" class="nav-btn">Gestione Riparazioni</a>
+        <a href="/karts" class="nav-btn">🏎️ Gestione Kart</a>
+        <a href="/parts" class="nav-btn">🛠️ Gestione Pezzi</a>
+        <a href="/technicians" class="nav-btn">👨‍🔧 Gestione Tecnici</a>
+    </div>
+
+    <!-- Form aggiungi tecnico -->
+    <form action="/add_technician" method="post">
+        <input type="text" name="nome" placeholder="Nome" required>
+        <input type="text" name="cognome" placeholder="Cognome" required>
+        <input type="text" name="specializzazione" placeholder="Specializzazione">
+        <button type="submit">➕ Aggiungi Tecnico</button>
+    </form>
+
+    <!-- Tabella tecnici -->
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Cognome</th>
+            <th>Specializzazione</th>
+            <th>Azioni</th>
+        </tr>
+        {% for t in technicians %}
+        <tr>
+            <td>{{ t[0] }}</td>
+            <td>{{ t[1] }}</td>
+            <td>{{ t[2] }}</td>
+            <td>{{ t[3] }}</td>
+            <td>
+                <a class="btn delete" href="/remove_technician/{{ t[0] }}">❌ Elimina</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kart Manager - Kart</title>
+    <link rel="icon" type="image/png" href="https://www.k1speed.com/wp-content/uploads/2025/10/k1speed-logo-short-red.png">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="overlay">
+    <h1>🏎️ Gestione Kart</h1>
+
+    <div class="top-nav">
+        <a href="/" class="nav-btn">Gestione Riparazioni</a>
+        <a href="/karts" class="nav-btn">🏎️ Gestione Kart</a>
+        <a href="/parts" class="nav-btn">🛠️ Gestione Pezzi</a>
+        <a href="/technicians" class="nav-btn">👨‍🔧 Gestione Tecnici</a>
+    </div>
+
+    <form action="/add_kart" method="post">
+        <input type="number" name="kart_num" placeholder="Numero Kart" required>
+        <input type="text" name="modello" placeholder="Modello (es. Sodi RSX)" required>
+
+        <select name="stato">
+            <option value="Disponibile">Disponibile</option>
+            <option value="In Riparazione">In Riparazione</option>
+            <option value="Fuori Servizio">Fuori Servizio</option>
+        </select>
+
+        <button type="submit">Aggiungi</button>
+    </form>
+
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Numero Kart</th>
+            <th>Modello</th>
+            <th>Stato</th>
+            <th>Azioni</th>
+        </tr>
+
+        {% for k in karts %}
+        <tr>
+            <td>{{ k[0] }}</td>
+            <td><b>#{{ k[1] }}</b></td>
+            <td>{{ k[2] }}</td>
+            <td>{{ k[3] }}</td>
+            <td>
+                <a class="btn green" href="/change_kart_status/{{ k[0] }}/Disponibile">Disponibile</a>
+                <a class="btn orange" href="/change_kart_status/{{ k[0] }}/In Riparazione">Riparazione</a>
+                <a class="btn red" href="/change_kart_status/{{ k[0] }}/Fuori Servizio">Fuori Servizio</a>
+                <a class="btn delete" href="/remove_kart/{{ k[0] }}">Elimina</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+</div>
+
+</body>
+</html>

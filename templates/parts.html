@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kart Manager - Kart</title>
+    <link rel="icon" type="image/png" href="https://www.k1speed.com/wp-content/uploads/2025/10/k1speed-logo-short-red.png">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="overlay">
+    <h1>🛞 Gestione Pezzi</h1>
+
+    <div class="top-nav">
+        <a href="/" class="nav-btn">Gestione Riparazioni</a>
+        <a href="/karts" class="nav-btn">🏎️ Gestione Kart</a>
+        <a href="/parts" class="nav-btn">🛠️ Gestione Pezzi</a>
+        <a href="/technicians" class="nav-btn">👨‍🔧 Gestione Tecnici</a>
+    </div>
+
+    <form action="/add_part" method="post">
+        <input type="text" name="nome_pezzo" placeholder="Nome Pezzo" required>
+        <input type="text" name="codice" placeholder="Codice" required>
+        <input type="number" step="0.01" name="costo_unitario" placeholder="Costo Unitario" required>
+        <button type="submit">Aggiungi Pezzo</button>
+    </form>
+
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Nome Pezzo</th>
+            <th>Codice</th>
+            <th>Costo Unitario (€)</th>
+            <th>Azioni</th>
+        </tr>
+
+        {% for p in parts %}
+        <tr>
+            <td>{{ p[0] }}</td>
+            <td><b>#{{ p[1] }}</b></td>
+            <td>{{ p[2] }}</td>
+            <td>{{ p[3] }} €</td>
+            <td>
+                <a class="btn delete" href="/remove_part/{{ p[0] }}">Elimina</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+</div>
+
+</body>
+</html>

@@ -1,15 +1,4 @@
-####################################
-# Mechanic - Kart Repair Management
-# Version 1.0.1
-# Author: Yehan Edirisinghe
-# Mail: yehan278@gmail.com
-# Date: 2025-01
-####################################
-
 import sqlite3
-
-
-
 
 class Mechanic:
 
@@ -58,6 +47,7 @@ class Mechanic:
             pezzo_id INTEGER,
             tecnico_id INTEGER,
             data_riparazione DATE,
+            quantità INTEGER,
             descrizione TEXT,
             FOREIGN KEY (kart_id) REFERENCES kart(kart_id),
             FOREIGN KEY (pezzo_id) REFERENCES pezzi(pezzo_id),
@@ -117,7 +107,7 @@ class Mechanic:
         print(f"Tecnico {nome} {cognome} creato con successo.")
         conn.close()
 
-    def add_repair(self, kart_num:int, nome_pezzo:str, data:str, tecnico:str, descrizione:str):
+    def add_repair(self, kart_num:int, nome_pezzo:str, data:str, tecnico:str, descrizione:str, quantità:int=1):
 
         conn = self.get_connection()
         c = conn.cursor()
@@ -152,8 +142,8 @@ class Mechanic:
             tecnico_id = tecnico_res[0]
 
         c.execute(
-            "INSERT INTO riparazioni (kart_id, pezzo_id, tecnico_id, data_riparazione, descrizione) VALUES (?, ?, ?, ?, ?)",
-            (kart_id, pezzo_id, tecnico_id, data, descrizione)
+            "INSERT INTO riparazioni (kart_id, pezzo_id, tecnico_id, data_riparazione, descrizione, quantità) VALUES (?, ?, ?, ?, ?, ?)",
+            (kart_id, pezzo_id, tecnico_id, data, descrizione, quantità)
         )
         conn.commit()
         print(f"Riparazione per kart {kart_num} aggiunta con successo.")
