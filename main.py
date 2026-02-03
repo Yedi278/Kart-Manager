@@ -6,19 +6,32 @@
 # Date: 2025-01
 ####################################
 
+import io, os, sys
 from Mechanic import Mechanic
 from flask import Flask, render_template, request, redirect
 from flask import send_file
 from reportlab.lib.pagesizes import A4
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
-import io
 from datetime import datetime
+
 
 sede="Bicocca"
 
-app = Flask(__name__)
+def resource_path(relative_path):
+    """ Ottiene il path corretto sia in sviluppo che in .exe """
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+template_dir = resource_path("templates")
+static_dir = resource_path("static")
+
+app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 db = Mechanic()
 
 @app.route("/")
@@ -318,7 +331,8 @@ def generate_report():
     ]))
 
     elements.append(kart_table)
-    elements.append(Spacer(1, 25))
+
+    elements.append(PageBreak())
 
     # ===== SEZIONE PEZZI =====
     elements.append(Paragraph("Pezzi da Ricomprare", styles["Heading2"]))
