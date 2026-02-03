@@ -361,7 +361,7 @@ def generate_report():
     buffer.seek(0)
 
     return send_file(buffer, as_attachment=True,
-                     download_name="report_meccanico_bicocca.pdf",
+                     download_name="report_kart_bicocca.pdf",
                      mimetype="application/pdf")
 
 app.run(host="0.0.0.0", port=5000, debug=False)
