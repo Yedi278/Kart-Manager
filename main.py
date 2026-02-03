@@ -1,6 +1,6 @@
 ####################################
 # Mechanic - Kart Repair Management
-# Version 1.0.3
+# Version 1.1.0
 # Author: Yehan Edirisinghe
 # Mail: yehan278@gmail.com
 # Date: 2025-01

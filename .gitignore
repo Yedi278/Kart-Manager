@@ -1,3 +1,6 @@
 .venv
 __pycache__/
 repair.db
+dist/
+build/
+*.db
