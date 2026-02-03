@@ -1,6 +1,6 @@
 ####################################
 # Mechanic - Kart Repair Management
-# Version 1.0.2
+# Version 1.0.3
 # Author: Yehan Edirisinghe
 # Mail: yehan278@gmail.com
 # Date: 2025-01
@@ -8,10 +8,18 @@
 
 from Mechanic import Mechanic
 from flask import Flask, render_template, request, redirect
+from flask import send_file
+from reportlab.lib.pagesizes import A4
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
+import io
+from datetime import datetime
+
+sede="Bicocca"
 
 app = Flask(__name__)
 db = Mechanic()
-
 
 @app.route("/")
 def home():
@@ -115,7 +123,7 @@ def karts():
     c = conn.cursor()
 
     c.execute("""
-    SELECT kart_id, kart_num, modello, stato
+    SELECT kart_id, kart_num, modello, stato, note
     FROM kart
     ORDER BY kart_num ASC
     """)
@@ -130,13 +138,25 @@ def add_kart():
     kart_num = int(request.form["kart_num"])
     modello = request.form["modello"]
     stato = request.form["stato"]
+    note = request.form.get("note", "")
 
     conn = db.get_connection()
     c = conn.cursor()
     c.execute(
-        "INSERT INTO kart (kart_num, modello, stato) VALUES (?, ?, ?)",
-        (kart_num, modello, stato)
+        "INSERT INTO kart (kart_num, modello, stato, note) VALUES (?, ?, ?, ?)",
+        (kart_num, modello, stato, note)
     )
+    conn.commit()
+    conn.close()
+    return redirect("/karts")
+
+@app.route("/update_kart_note/<int:kart_id>", methods=["POST"])
+def update_kart_note(kart_id: int):
+    note = request.form["note"]
+
+    conn = db.get_connection()
+    c = conn.cursor()
+    c.execute("UPDATE kart SET note = ? WHERE kart_id = ?", (note, kart_id))
     conn.commit()
     conn.close()
     return redirect("/karts")
@@ -196,7 +216,7 @@ def parts():
     c = conn.cursor()
 
     c.execute("""
-        SELECT pezzo_id, nome_pezzo, codice, costo_unitario
+        SELECT pezzo_id, nome_pezzo, codice, costo_unitario, ricomprare
         FROM pezzi
         ORDER BY pezzo_id ASC
     """)
@@ -204,6 +224,22 @@ def parts():
     parts = c.fetchall()
     conn.close()
     return render_template("parts.html", parts=parts)
+
+@app.route("/toggle_reorder/<int:pezzo_id>", methods=["POST"])
+def toggle_reorder(pezzo_id: int):
+    conn = db.get_connection()
+    c = conn.cursor()
+
+    c.execute("""
+        UPDATE pezzi
+        SET ricomprare = CASE ricomprare WHEN 1 THEN 0 ELSE 1 END
+        WHERE pezzo_id = ?
+    """, (pezzo_id,))
+
+    conn.commit()
+    conn.close()
+
+    return redirect(request.referrer or "/parts")
 
 @app.route("/add_part", methods=["POST"])
 def add_part():
@@ -248,5 +284,70 @@ def change_repair_description(repair_id: int, new_description: str):
     conn.close()
     return redirect("/")
 
+@app.route("/report")
+def generate_report():
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4)
+    styles = getSampleStyleSheet()
+    elements = []
 
-app.run(debug=False)
+    conn = db.get_connection()
+    c = conn.cursor()
+
+    # ===== TITOLO =====
+    title = Paragraph(f"Report Kart - Sede {sede}", styles["Title"])
+    date = Paragraph(f"Generato il: {datetime.now().strftime('%d/%m/%Y')}", styles["Normal"])
+    elements.extend([title, Spacer(1, 10), date, Spacer(1, 20)])
+
+    # ===== SEZIONE KART =====
+    elements.append(Paragraph("Stato Kart", styles["Heading2"]))
+    c.execute("SELECT kart_num, modello, stato, note FROM kart ORDER BY kart_num")
+    karts = c.fetchall()
+
+    kart_data = [["Kart", "Modello", "Stato", "Note"]]
+    for k in karts:
+        kart_data.append(list(k))
+
+    kart_table = Table(kart_data, repeatRows=1)
+    kart_table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+        ("GRID", (0, 0), (-1, -1), 1, colors.black),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+    ]))
+
+    elements.append(kart_table)
+    elements.append(Spacer(1, 25))
+
+    # ===== SEZIONE PEZZI =====
+    elements.append(Paragraph("Pezzi da Ricomprare", styles["Heading2"]))
+    c.execute("SELECT nome_pezzo, codice, costo_unitario, ricomprare FROM pezzi WHERE ricomprare = 1 ORDER BY nome_pezzo")
+    parts = c.fetchall()
+
+    parts_data = [["Pezzo", "Codice", "Costo €", "Da ricomprare"]]
+    for p in parts:
+        parts_data.append([p[0], p[1], f"{p[2]:.2f}", "SI"])
+
+    parts_table = Table(parts_data, repeatRows=1)
+    parts_table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), colors.darkblue),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+        ("GRID", (0, 0), (-1, -1), 1, colors.black),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("ALIGN", (2, 1), (2, -1), "RIGHT"),
+        ("ALIGN", (3, 1), (3, -1), "CENTER"),
+    ]))
+
+    elements.append(parts_table)
+
+    conn.close()
+
+    doc.build(elements)
+    buffer.seek(0)
+
+    return send_file(buffer, as_attachment=True,
+                     download_name="report_meccanico_bicocca.pdf",
+                     mimetype="application/pdf")
+
+app.run(host="0.0.0.0", port=5000, debug=False)

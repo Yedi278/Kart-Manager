@@ -159,3 +159,55 @@ tr:nth-child(even) {
 .filter-form .btn:hover {
     background-color: #003d80;
 }
+
+/* Contenitore */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 46px;
+    height: 24px;
+}
+
+/* Nasconde checkbox originale */
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* Sfondo */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: #ccc;
+    border-radius: 34px;
+    transition: 0.3s;
+}
+
+/* Pallino */
+.slider:before {
+    content: "";
+    position: absolute;
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+/* Stato ON */
+.switch input:checked + .slider {
+    background-color: #4CAF50;
+}
+
+.switch input:checked + .slider:before {
+    transform: translateX(22px);
+}
+
+/* Effetto focus */
+.switch input:focus + .slider {
+    box-shadow: 0 0 2px #4CAF50;
+}

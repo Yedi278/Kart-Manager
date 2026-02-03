@@ -18,10 +18,11 @@
     </div>
 
     <form action="/add_kart" method="post">
-        <input type="number" name="kart_num" placeholder="Numero Kart" required>
+        <input type="number" name="kart_num" placeholder="Numero Kart" required min="1">
         <input type="text" name="modello" placeholder="Modello (es. Sodi RSX)" required>
 
-        <select name="stato">
+        <select name="stato" required>
+            <option value="">Seleziona Stato</option>
             <option value="Disponibile">Disponibile</option>
             <option value="In Riparazione">In Riparazione</option>
             <option value="Fuori Servizio">Fuori Servizio</option>
@@ -36,7 +37,9 @@
             <th>Numero Kart</th>
             <th>Modello</th>
             <th>Stato</th>
+            <th>Note</th>
             <th>Azioni</th>
+            <th>Elimina</th>
         </tr>
 
         {% for k in karts %}
@@ -45,11 +48,27 @@
             <td><b>#{{ k[1] }}</b></td>
             <td>{{ k[2] }}</td>
             <td>{{ k[3] }}</td>
+
+           <td class="note-cell">
+                <form action="/update_kart_note/{{ k[0] }}" method="post" class="note-form">
+                    <textarea name="note" placeholder="Scrivi una nota...">{{ k[4] }}</textarea>
+                    <button type="submit">💾</button>
+                </form>
+            </td>
+
             <td>
-                <a class="btn green" href="/change_kart_status/{{ k[0] }}/Disponibile">Disponibile</a>
-                <a class="btn orange" href="/change_kart_status/{{ k[0] }}/In Riparazione">Riparazione</a>
-                <a class="btn red" href="/change_kart_status/{{ k[0] }}/Fuori Servizio">Fuori Servizio</a>
-                <a class="btn delete" href="/remove_kart/{{ k[0] }}">Elimina</a>
+                <select onchange="location = this.value;">
+                    <option value="">Seleziona Azione</option>
+                    <option value="/change_kart_status/{{ k[0] }}/Disponibile">Disponibile</option>
+                    <option value="/change_kart_status/{{ k[0] }}/In Riparazione">Riparazione</option>
+                    <option value="/change_kart_status/{{ k[0] }}/Fuori Servizio">Fuori Servizio</option>
+                </select>
+            </td>
+
+            <td>
+                <button onclick="if(confirm('Sei sicuro di voler eliminare questo kart?')) { location.href='/remove_kart/{{ k[0] }}'; }">
+                    🗑️
+                </button>
             </td>
         </tr>
         {% endfor %}

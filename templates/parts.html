@@ -8,6 +8,7 @@
 <body>
 
 <div class="overlay">
+
     <h1>🛞 Gestione Pezzi</h1>
 
     <div class="top-nav">
@@ -30,17 +31,35 @@
             <th>Nome Pezzo</th>
             <th>Codice</th>
             <th>Costo Unitario (€)</th>
-            <th>Azioni</th>
+            <th>Ricomprare</th>
+            <th>Elimina</th>
         </tr>
 
         {% for p in parts %}
         <tr>
             <td>{{ p[0] }}</td>
+
             <td><b>#{{ p[1] }}</b></td>
+
             <td>{{ p[2] }}</td>
+
             <td>{{ p[3] }} €</td>
+
+            <td class="reorder-cell" style="text-align: center;">
+                <form action="/toggle_reorder/{{ p[0] }}" method="post" style="display: inline;">
+                    <label class="switch">
+                        <input type="checkbox"
+                            {% if p[4] %}checked{% endif %}
+                            onchange="this.form.submit()">
+                        <span class="slider"></span>
+                    </label>
+                </form>
+            </td>
+
             <td>
-                <a class="btn delete" href="/remove_part/{{ p[0] }}">Elimina</a>
+                <button onclick="if(confirm('Sei sicuro di voler eliminare questo pezzo?')) { location.href='/remove_part/{{ p[0] }}'; }">
+                    🗑️
+                </button>
             </td>
         </tr>
         {% endfor %}
