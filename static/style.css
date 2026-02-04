@@ -211,3 +211,8 @@ tr:nth-child(even) {
 .switch input:focus + .slider {
     box-shadow: 0 0 2px #4CAF50;
 }
+
+.stato-Disponibile { background-color: rgba(0, 80, 0, 0.35); }
+.stato-In-Riparazione { background-color: rgba(120, 80, 0, 0.35); }
+.stato-Fuori-Servizio { background-color: rgba(120, 0, 0, 0.35); }
+.stato-Dismesso { background-color: rgba(60, 0, 60, 0.35); }

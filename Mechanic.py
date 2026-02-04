@@ -15,11 +15,12 @@ class Mechanic:
         c.execute("""
         CREATE TABLE IF NOT EXISTS kart (
             kart_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            kart_num INTEGER UNIQUE,
+            kart_num INTEGER,
             modello TEXT,
             stato TEXT,
-            note TEXT
-        )
+            note TEXT,
+            UNIQUE(kart_num, modello)
+        );
         """)
 
         # Tabella Pezzi

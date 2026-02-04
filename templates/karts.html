@@ -31,6 +31,33 @@
         <button type="submit">Aggiungi</button>
     </form>
 
+    <form method="get" action="/karts" style="margin-bottom: 20px; display:flex; gap:20px; align-items:center; justify-content:center;">
+
+        <!-- Filtro Modello -->
+        <div>
+            <label>Modello:</label>
+            <select name="modello" onchange="this.form.submit()">
+                <option value="">Tutti</option>
+                {% for m in modelli %}
+                    <option value="{{ m }}" {% if m == filtro_modello %}selected{% endif %}>{{ m }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Filtro Stato Dinamico -->
+        <div>
+            <label>Stato:</label>
+            <select name="stato" onchange="this.form.submit()">
+                <option value="Tutti">Tutti</option>
+                {% for s in stati %}
+                    <option value="{{ s }}" {% if s == filtro_stato %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+    </form>
+
+
     <table>
         <tr>
             <th>ID</th>
@@ -62,6 +89,7 @@
                     <option value="/change_kart_status/{{ k[0] }}/Disponibile">Disponibile</option>
                     <option value="/change_kart_status/{{ k[0] }}/In Riparazione">Riparazione</option>
                     <option value="/change_kart_status/{{ k[0] }}/Fuori Servizio">Fuori Servizio</option>
+                    <option value="/change_kart_status/{{ k[0] }}/Dismesso">Dismesso</option>
                 </select>
             </td>
 

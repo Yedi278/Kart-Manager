@@ -1,6 +1,6 @@
 ####################################
 # Mechanic - Kart Repair Management
-# Version 1.1.0
+# Version 1.1.1
 # Author: Yehan Edirisinghe
 # Mail: yehan278@gmail.com
 # Date: 2025-01
@@ -47,14 +47,15 @@ def home():
     # Query base riparazioni
     query = """
         SELECT r.id_riparazione,
-               k.kart_num,
-               p.nome_pezzo,
-               t.nome || ' ' || t.cognome,
-               r.data_riparazione,
-               r.quantità,
-               r.descrizione
+            COALESCE(k.kart_num, 'Kart rimosso') AS kart_num,
+            p.nome_pezzo,
+            t.nome || ' ' || t.cognome,
+            r.data_riparazione,
+            r.quantità,
+            r.descrizione
+
         FROM riparazioni r
-        JOIN kart k ON r.kart_id = k.kart_id
+        LEFT JOIN kart k ON r.kart_id = k.kart_id
         JOIN pezzi p ON r.pezzo_id = p.pezzo_id
         JOIN tecnici t ON r.tecnico_id = t.tecnico_id
     """
@@ -80,7 +81,12 @@ def home():
     repairs = c.fetchall()
 
     # Recupero tutti i kart, pezzi e tecnici per i select
-    c.execute("SELECT kart_id, kart_num, modello FROM kart")
+    c.execute("""
+        SELECT kart_id, kart_num, modello
+        FROM kart
+        WHERE stato != 'Dismesso'
+        ORDER BY kart_num ASC
+    """)
     karts = c.fetchall()
 
     c.execute("SELECT pezzo_id, nome_pezzo, codice FROM pezzi")
@@ -132,26 +138,63 @@ def remove_repair(repair_id: int):
 
 @app.route("/karts")
 def karts():
+    filtro_modello = request.args.get("modello")
+    filtro_stato = request.args.get("stato")
+
     conn = db.get_connection()
     c = conn.cursor()
 
-    c.execute("""
-    SELECT kart_id, kart_num, modello, stato, note
-    FROM kart
-    ORDER BY kart_num ASC
-    """)
+    query = """
+        SELECT kart_id, kart_num, modello, stato, note
+        FROM kart
+    """
 
+    filters = []
+    params = []
+
+    if filtro_modello:
+        filters.append("modello = ?")
+        params.append(filtro_modello)
+
+    if filtro_stato and filtro_stato != "Tutti":
+        filters.append("stato = ?")
+        params.append(filtro_stato)
+
+    if filters:
+        query += " WHERE " + " AND ".join(filters)
+
+    query += " ORDER BY kart_num ASC"
+
+    c.execute(query, params)
     karts = c.fetchall()
 
+    # 🔹 Lista modelli per filtro
+    c.execute("SELECT DISTINCT modello FROM kart ORDER BY modello")
+    modelli = [row[0] for row in c.fetchall()]
+
+    # 🔹 Lista stati REALI presenti nel DB
+    c.execute("SELECT DISTINCT stato FROM kart ORDER BY stato")
+    stati = [row[0] for row in c.fetchall()]
+
     conn.close()
-    return render_template("karts.html", karts=karts)
+
+    return render_template(
+        "karts.html",
+        karts=karts,
+        modelli=modelli,
+        stati=stati,
+        filtro_modello=filtro_modello,
+        filtro_stato=filtro_stato
+    )
+
 
 @app.route("/add_kart", methods=["POST"])
 def add_kart():
     kart_num = int(request.form["kart_num"])
     modello = request.form["modello"]
     stato = request.form["stato"]
-    note = request.form.get("note", "")
+    # add blank note by default
+    note = ""
 
     conn = db.get_connection()
     c = conn.cursor()
@@ -178,10 +221,14 @@ def update_kart_note(kart_id: int):
 def remove_kart(kart_id):
     conn = db.get_connection()
     c = conn.cursor()
+    
+    c.execute("UPDATE riparazioni SET kart_id = NULL WHERE kart_id = ?", (kart_id,))    
     c.execute("DELETE FROM kart WHERE kart_id = ?", (kart_id,))
+
     conn.commit()
     conn.close()
     return redirect("/karts")
+
 
 @app.route("/technicians")
 def technicians():
@@ -319,7 +366,8 @@ def generate_report():
 
     kart_data = [["Kart", "Modello", "Stato", "Note"]]
     for k in karts:
-        kart_data.append(list(k))
+        if k[2] != "Dismesso":
+            kart_data.append(list(k))
 
     kart_table = Table(kart_data, repeatRows=1)
     kart_table.setStyle(TableStyle([
